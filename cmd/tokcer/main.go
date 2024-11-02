@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
 	"strings"
 
 	"github.com/iklabib/tokcer/memo"
@@ -56,11 +57,6 @@ func main() {
 	})
 
 	e.GET("/stream", func(c echo.Context) error {
-		// var req VideoStreamRequest
-		// if err := c.Bind(&req); err != nil {
-		// 	return c.JSON(http.StatusBadRequest, "bad request")
-		// }
-
 		user := c.QueryParam("u")
 		videoId := c.QueryParam("id")
 		url := fmt.Sprintf("https://www.tiktok.com/%s/video/%s", user, videoId)
@@ -74,5 +70,10 @@ func main() {
 		return c.Stream(200, "video/"+vs.Ext, vs.Video)
 	})
 
-	e.Logger.Fatal(e.Start(":1323"))
+	host := os.Getenv("TOKCER_HOST")
+	if host != "" {
+		e.Logger.Fatal(e.Start(host))
+	} else {
+		e.Logger.Fatal(e.Start(":1323"))
+	}
 }
