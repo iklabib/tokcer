@@ -54,12 +54,26 @@ func (tk *Tiktok) GetVideoInfo(url string) (*VideoInfoMin, error) {
 	script := `() => {
 		try {
 			const vd = JSON.parse(document.getElementById("__UNIVERSAL_DATA_FOR_REHYDRATION__").text).__DEFAULT_SCOPE__["webapp.video-detail"]["itemInfo"]["itemStruct"]
+			const relatedVideoQuery = document.querySelectorAll("div[class*='DivItemContainer']")
+			const relatedVideos = []
+			for (const item of relatedVideoQuery) {
+				const current = item.querySelector('a[title]')
+				if (current) {
+					const username = item.querySelector('div[class*="DivAuthor"]').textContent
+					const img = current.querySelector('img')?.src ?? ""
+					relatedVideos.push({
+						thumbnail: img,
+						url: current.href,
+						username: username,
+						title: current.title,
+					})
+				}
+			}
 			return {
 				desc: vd.desc,
 				author: vd.author,
-				// music: vd.music,
-				// video: vd.video,
 				statsV2: vd.statsV2,
+				relatedVideos: relatedVideos,
 			}
 		} catch (e) {
 			return {};

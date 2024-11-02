@@ -6,5 +6,6 @@ type VideoSearchRequest struct {
 }
 
 type VideoManifestRequest struct {
-	Url string `json:"url"`
+	User    string `json:"user"`
+	VideoId string `json:"video_id"`
 }

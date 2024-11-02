@@ -18,15 +18,25 @@ type VideoSearchItems struct {
 }
 
 type VideoSearchItem struct {
-	Url      string `json:"url"`
-	Desc     string `json:"desc"`
-	CoverAlt string `json:"coverAlt"`
-	Cover    string `json:"cover"`
+	Url        string `json:"url"`
+	Desc       string `json:"desc"`
+	CoverAlt   string `json:"coverAlt"`
+	Cover      string `json:"cover"`
+	Username   string `json:"username"`
+	UserAvatar string `json:"userAvatar"`
+}
+
+type RelatedVideo struct {
+	Url       string `json:"url"`
+	Title     string `json:"title"`
+	Thumbnail string `json:"thumbnail"`
+	Username  string `json:"username"`
 }
 
 type VideoInfoMin struct {
-	Desc   string `json:"desc"`
-	Author struct {
+	Desc          string         `json:"desc"`
+	RelatedVideos []RelatedVideo `json:"relatedVideos"`
+	Author        struct {
 		ID           string `json:"id"`
 		ShortID      string `json:"shortId"`
 		UniqueID     string `json:"uniqueId"`

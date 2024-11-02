@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"net/url"
 	"os"
 	"strings"
 	"time"
@@ -54,31 +53,21 @@ func main() {
 		return c.JSON(200, results)
 	})
 
-	e.POST("/video", func(c echo.Context) error {
-		var req VideoManifestRequest
-		if err := c.Bind(&req); err != nil {
-			log.Printf("video: failed to read request body %s", err.Error())
-			return c.JSON(400, "bad request")
-		}
+	e.GET("/video", func(c echo.Context) error {
+		user := c.QueryParam("u")
+		videoId := c.QueryParam("id")
+		url := fmt.Sprintf("https://www.tiktok.com/%s/video/%s", user, videoId)
 
-		parsed, err := url.Parse(req.Url)
-		if err != nil {
-			log.Printf("video: %s", err.Error())
-			return c.JSON(500, "failed to fetch video information")
-		}
-
-		// strip query from url
-		cleanedUrl := "https://www.tiktok.com/" + strings.TrimLeft(parsed.Path, "/")
-
-		var vinfo *tiktok.VideoInfoMin
-		vinfo = memo.LoadVideoInfo(cleanedUrl)
+		vinfo := memo.LoadVideoInfo(url)
 		if vinfo == nil {
-			vinfo, err = tk.GetVideoInfo(cleanedUrl)
+			vi, err := tk.GetVideoInfo(url)
 			if err != nil {
 				log.Printf("video: %s", err.Error())
 				return c.JSON(500, "failed to fetch video information")
 			}
-			memo.AddVideo(cleanedUrl, vinfo)
+			memo.AddVideo(url, vi)
+
+			vinfo = vi
 		}
 
 		return c.JSON(200, vinfo)

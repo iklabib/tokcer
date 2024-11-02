@@ -3,7 +3,6 @@ package tiktok
 import (
 	"fmt"
 	"log"
-	"math/rand"
 	"net/url"
 	"time"
 
@@ -30,7 +29,7 @@ func NewVideoSearch(browser *rod.Browser, keywords string) *VideoSearch {
 
 	return &VideoSearch{
 		browser:  browser,
-		page:     page,
+		page:     page.MustWaitDOMStable(),
 		keywords: keywords,
 		index:    map[string]bool{},
 	}
@@ -43,9 +42,8 @@ func (vs *VideoSearch) Close() {
 // return differences between call
 func (vs *VideoSearch) Load() []VideoSearchItem {
 	vs.page.Keyboard.Press(input.End)
-	r := rand.Int63n(1500-500) + 500
-	wait := time.Duration(r) * time.Millisecond
-	vs.page.WaitIdle(wait)
+
+	vs.page = vs.page.MustWaitDOMStable()
 
 	items := vs.parseVideoSearchPage()
 	var newItems []VideoSearchItem
@@ -65,7 +63,7 @@ func (vs *VideoSearch) Load() []VideoSearchItem {
 func (vs *VideoSearch) LoadAll() []VideoSearchItem {
 	vs.page.Keyboard.Press(input.End)
 
-	randomDelay()
+	vs.page = vs.page.MustWaitDOMStable()
 
 	return vs.parseVideoSearchPage()
 }
@@ -81,8 +79,12 @@ func (vs *VideoSearch) parseVideoSearchPage() []VideoSearchItem {
 				const videoDesc = Array.from(p.querySelector('div[data-e2e="search-card-video-caption"] h1').childNodes)
 					.map(el => el.textContent)
 					.join('')
+				const user = p.querySelector('p[data-e2e="search-card-user-unique-id"]')
+				const userAvatar = user.parentElement.querySelector('img').src
 				const video = {
 					url: videoItem.querySelector('a').href,
+					username: user.textContent,
+					userAvatar: userAvatar,
 					desc: videoDesc,
 					coverAlt: videoItem.querySelector('img').alt,
 					cover: videoItem.querySelector('img').src,
