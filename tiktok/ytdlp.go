@@ -69,7 +69,7 @@ func getVideoStream(videoInfo *VideoInfo) (*VideoStream, error) {
 		return nil, fmt.Errorf("bad status: %s", resp.Status)
 	}
 
-	return &VideoStream{Ext: format.Ext, Video: resp.Body}, nil
+	return &VideoStream{Ext: format.Ext, Video: resp.Body, ContentLength: resp.ContentLength}, nil
 }
 
 func parseCookies(cookiesStr string) map[string]string {
@@ -117,5 +117,3 @@ func pickVideo(formats []Format) Format {
 
 	return item
 }
-
-// "https://www.tiktok.com/@gayscosmo/video/7415341992571374854"

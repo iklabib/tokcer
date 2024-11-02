@@ -54,13 +54,11 @@ func (tk *Tiktok) GetVideoInfo(url string) (*VideoInfoMin, error) {
 	script := `() => {
 		try {
 			const vd = JSON.parse(document.getElementById("__UNIVERSAL_DATA_FOR_REHYDRATION__").text).__DEFAULT_SCOPE__["webapp.video-detail"]["itemInfo"]["itemStruct"]
-			// const videoSources = Array.from(document.querySelector('#main-content-video_detail .tiktok-web-player video').children).map(el => el.src)
 			return {
 				desc: vd.desc,
-				// videoSources: videoSources,
 				author: vd.author,
-				music: vd.music,
-				video: vd.video,
+				// music: vd.music,
+				// video: vd.video,
 				statsV2: vd.statsV2,
 			}
 		} catch (e) {

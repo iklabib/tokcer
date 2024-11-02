@@ -25,9 +25,8 @@ type VideoSearchItem struct {
 }
 
 type VideoInfoMin struct {
-	VideoSources []string `json:"videoSources"`
-	Desc         string   `json:"desc"`
-	Author       struct {
+	Desc   string `json:"desc"`
+	Author struct {
 		ID           string `json:"id"`
 		ShortID      string `json:"shortId"`
 		UniqueID     string `json:"uniqueId"`
@@ -37,29 +36,6 @@ type VideoInfoMin struct {
 		AvatarThumb  string `json:"avatarThumb"`
 		Signature    string `json:"signature"`
 	} `json:"author"`
-	Music struct {
-		Title       string `json:"title"`
-		CoverLarge  string `json:"coverLarge"`
-		CoverMedium string `json:"coverMedium"`
-		CoverThumb  string `json:"coverThumb"`
-		AuthorName  string `json:"authorName"`
-		Duration    int    `json:"duration"`
-	} `json:"music"`
-	Video struct {
-		ID            string `json:"id"`
-		Height        int    `json:"height"`
-		Width         int    `json:"width"`
-		Duration      int    `json:"duration"`
-		Ratio         string `json:"ratio"`
-		Cover         string `json:"cover"`
-		Bitrate       int    `json:"bitrate"`
-		EncodedType   string `json:"encodedType"`
-		Format        string `json:"format"`
-		VideoQuality  string `json:"videoQuality"`
-		EncodeUserTag string `json:"encodeUserTag"`
-		CodecType     string `json:"codecType"`
-		Definition    string `json:"definition"`
-	} `json:"video"`
 	StatsV2 struct {
 		DiggCount    string `json:"diggCount"`
 		ShareCount   string `json:"shareCount"`
@@ -70,9 +46,35 @@ type VideoInfoMin struct {
 	} `json:"statsV2"`
 }
 
+type Music struct {
+	Title       string `json:"title"`
+	CoverLarge  string `json:"coverLarge"`
+	CoverMedium string `json:"coverMedium"`
+	CoverThumb  string `json:"coverThumb"`
+	AuthorName  string `json:"authorName"`
+	Duration    int    `json:"duration"`
+}
+
+type Video struct {
+	ID            string `json:"id"`
+	Height        int    `json:"height"`
+	Width         int    `json:"width"`
+	Duration      int    `json:"duration"`
+	Ratio         string `json:"ratio"`
+	Cover         string `json:"cover"`
+	Bitrate       int    `json:"bitrate"`
+	EncodedType   string `json:"encodedType"`
+	Format        string `json:"format"`
+	VideoQuality  string `json:"videoQuality"`
+	EncodeUserTag string `json:"encodeUserTag"`
+	CodecType     string `json:"codecType"`
+	Definition    string `json:"definition"`
+}
+
 type VideoStream struct {
-	Ext   string        `json:"ext"`
-	Video io.ReadCloser `json:"video"`
+	Ext           string        `json:"ext"`
+	Video         io.ReadCloser `json:"video"`
+	ContentLength int64         `json:"content_length"`
 }
 
 type VideoInfo struct {

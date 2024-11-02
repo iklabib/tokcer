@@ -25,7 +25,7 @@ func NewVideoSearch(browser *rod.Browser, keywords string) *VideoSearch {
 
 	page.MustNavigate(searchURL)
 
-	timeout := time.Duration(5+rand.Intn(5)) * time.Second
+	timeout := 1500 * time.Millisecond
 	page.Timeout(timeout).Element(`div[data-e2e="search_video-item"]`)
 
 	return &VideoSearch{
@@ -43,7 +43,8 @@ func (vs *VideoSearch) Close() {
 // return differences between call
 func (vs *VideoSearch) Load() []VideoSearchItem {
 	vs.page.Keyboard.Press(input.End)
-	wait := time.Duration(1+rand.Intn(3)) * time.Second
+	r := rand.Int63n(1500-500) + 500
+	wait := time.Duration(r) * time.Millisecond
 	vs.page.WaitIdle(wait)
 
 	items := vs.parseVideoSearchPage()

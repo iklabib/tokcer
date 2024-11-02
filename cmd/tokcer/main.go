@@ -3,18 +3,32 @@ package main
 import (
 	"fmt"
 	"log"
+	"net/http"
+	"net/url"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/iklabib/tokcer/memo"
 	"github.com/iklabib/tokcer/tiktok"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 var tk *tiktok.Tiktok = tiktok.NewTiktok()
 
 func main() {
+	// frontendHost := os.Getenv("TOCKER_FRONTEND_HOST")
 	e := echo.New()
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins:  []string{"*", "http://localhost:5173"},
+		AllowHeaders:  []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
+		AllowMethods:  []string{http.MethodGet, http.MethodPost, http.MethodHead},
+		ExposeHeaders: []string{"Content-Range", "Accept-Ranges", "Content-Length"},
+	}))
+
+	// periodically clean cache
+	memo.StartCacheCleaner(10 * time.Minute)
 
 	e.POST("/search", func(c echo.Context) error {
 		var req VideoSearchRequest
@@ -47,25 +61,72 @@ func main() {
 			return c.JSON(400, "bad request")
 		}
 
-		vinfo, err := tk.GetVideoInfo(req.Url)
+		parsed, err := url.Parse(req.Url)
 		if err != nil {
 			log.Printf("video: %s", err.Error())
 			return c.JSON(500, "failed to fetch video information")
 		}
 
+		// strip query from url
+		cleanedUrl := "https://www.tiktok.com/" + strings.TrimLeft(parsed.Path, "/")
+
+		var vinfo *tiktok.VideoInfoMin
+		vinfo = memo.LoadVideoInfo(cleanedUrl)
+		if vinfo == nil {
+			vinfo, err = tk.GetVideoInfo(cleanedUrl)
+			if err != nil {
+				log.Printf("video: %s", err.Error())
+				return c.JSON(500, "failed to fetch video information")
+			}
+			memo.AddVideo(cleanedUrl, vinfo)
+		}
+
 		return c.JSON(200, vinfo)
 	})
 
-	e.GET("/stream", func(c echo.Context) error {
+	e.HEAD("/stream", func(c echo.Context) error {
 		user := c.QueryParam("u")
 		videoId := c.QueryParam("id")
 		url := fmt.Sprintf("https://www.tiktok.com/%s/video/%s", user, videoId)
 
-		vs, err := tk.StreamVideo(url)
-		if err != nil {
-			log.Printf("stream: %s", err.Error())
-			return c.JSON(500, "failed to stream video")
+		vs := memo.LoadStream(url)
+		if vs == nil {
+			st, err := tk.StreamVideo(url)
+			if err != nil {
+				log.Printf("stream: %s", err.Error())
+				return c.JSON(500, "failed to stream video")
+			}
+
+			vs = st
 		}
+
+		c.Response().Header().Set("Content-Type", "video/"+vs.Ext)
+
+		return c.NoContent(200)
+	})
+
+	e.GET("/stream", func(c echo.Context) error {
+		// TODO: range support
+		user := c.QueryParam("u")
+		videoId := c.QueryParam("id")
+		url := fmt.Sprintf("https://www.tiktok.com/%s/video/%s", user, videoId)
+
+		// well, video player should hit HEAD fist
+		// but just check them just in case
+		vs := memo.LoadStream(url)
+		if vs == nil {
+			st, err := tk.StreamVideo(url)
+			if err != nil {
+				log.Printf("stream: %s", err.Error())
+				return c.JSON(500, "failed to stream video")
+			}
+
+			vs = st
+		}
+
+		defer memo.DeleteStream(url)
+
+		c.Response().Header().Set("Content-Length", fmt.Sprintf("%d", vs.ContentLength))
 
 		return c.Stream(200, "video/"+vs.Ext, vs.Video)
 	})
