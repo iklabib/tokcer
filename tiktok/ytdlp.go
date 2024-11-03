@@ -80,10 +80,7 @@ func parseCookies(cookiesStr string) map[string]string {
 		}
 
 		kv := strings.SplitN(cookie, "=", 2)
-		if strings.TrimSpace(kv[0]) == "" || strings.TrimSpace(kv[1]) == "" {
-			continue
-		}
-		cookies[kv[0]] = kv[1]
+		cookies[kv[0]] = strings.ReplaceAll(kv[1], `"`, "")
 	}
 	return cookies
 }

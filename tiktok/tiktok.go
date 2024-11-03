@@ -16,6 +16,7 @@ type Tiktok struct {
 }
 
 func NewTiktok() *Tiktok {
+	// the only workaround against TikTok's anti bot is using user mode
 	wsURL := launcher.NewUserMode().Headless(true).MustLaunch()
 	browser := rod.New().ControlURL(wsURL).MustConnect().NoDefaultDevice()
 	return &Tiktok{browser: browser}
@@ -34,8 +35,6 @@ func (tk *Tiktok) GetVideoInfo(url string) (*VideoInfoMin, error) {
 	page := stealth.MustPage(tk.browser)
 	defer page.Close()
 
-	randomDelay()
-
 	page.MustNavigate(url)
 
 	err := page.WaitLoad()
@@ -43,13 +42,13 @@ func (tk *Tiktok) GetVideoInfo(url string) (*VideoInfoMin, error) {
 		return nil, fmt.Errorf("timeout waiting for page load: %v", err)
 	}
 
-	randomDelay()
 	_, err = page.Element("#__UNIVERSAL_DATA_FOR_REHYDRATION__")
 	if err != nil {
 		return nil, fmt.Errorf("failed to find data element: %v", err)
 	}
 
-	// Execute JavaScript with error handling
+	randomDelay()
+
 	var videoInfo VideoInfoMin
 	script := `() => {
 		try {

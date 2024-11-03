@@ -77,6 +77,11 @@ func StartCacheCleaner(d time.Duration) {
 
 func cleanCaches() {
 	searchCacheMutex.Lock()
+	// close pages
+	for _, v := range searchCache {
+		v.Close()
+	}
+
 	searchCache = map[string]*tiktok.VideoSearch{}
 	searchCacheMutex.Unlock()
 

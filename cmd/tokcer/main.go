@@ -14,13 +14,21 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 )
 
+// To anyone reading this code:
+// I apologize that you have to witness this atrocity
+// a barely functional solution, duct-taped together on a weekend
+
 var tk *tiktok.Tiktok = tiktok.NewTiktok()
 
 func main() {
-	// frontendHost := os.Getenv("TOCKER_FRONTEND_HOST")
+	frontendHost := os.Getenv("TOCKER_FRONTEND_HOST")
+	if frontendHost == "" {
+		frontendHost = ":5713"
+	}
+
 	e := echo.New()
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins:  []string{"*", "http://localhost:5173"},
+		AllowOrigins:  []string{"*", frontendHost},
 		AllowHeaders:  []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
 		AllowMethods:  []string{http.MethodGet, http.MethodPost, http.MethodHead},
 		ExposeHeaders: []string{"Content-Range", "Accept-Ranges", "Content-Length"},
@@ -53,9 +61,9 @@ func main() {
 		return c.JSON(200, results)
 	})
 
-	e.GET("/video", func(c echo.Context) error {
-		user := c.QueryParam("u")
-		videoId := c.QueryParam("id")
+	e.GET("/video/:user/:id", func(c echo.Context) error {
+		user := c.Param("user")
+		videoId := c.Param("id")
 		url := fmt.Sprintf("https://www.tiktok.com/%s/video/%s", user, videoId)
 
 		vinfo := memo.LoadVideoInfo(url)
@@ -73,9 +81,9 @@ func main() {
 		return c.JSON(200, vinfo)
 	})
 
-	e.HEAD("/stream", func(c echo.Context) error {
-		user := c.QueryParam("u")
-		videoId := c.QueryParam("id")
+	e.HEAD("/stream/:user/:id", func(c echo.Context) error {
+		user := c.Param("user")
+		videoId := c.Param("id")
 		url := fmt.Sprintf("https://www.tiktok.com/%s/video/%s", user, videoId)
 
 		vs := memo.LoadStream(url)
@@ -94,10 +102,10 @@ func main() {
 		return c.NoContent(200)
 	})
 
-	e.GET("/stream", func(c echo.Context) error {
+	e.GET("/stream/:user/:id", func(c echo.Context) error {
 		// TODO: range support
-		user := c.QueryParam("u")
-		videoId := c.QueryParam("id")
+		user := c.Param("user")
+		videoId := c.Param("id")
 		url := fmt.Sprintf("https://www.tiktok.com/%s/video/%s", user, videoId)
 
 		// well, video player should hit HEAD fist

@@ -36,7 +36,7 @@ func NewVideoSearch(browser *rod.Browser, keywords string) *VideoSearch {
 }
 
 func (vs *VideoSearch) Close() {
-	vs.page.MustClose()
+	vs.page.Close()
 }
 
 // return differences between call
