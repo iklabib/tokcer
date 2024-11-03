@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import type SearchItem from '@/types/SearchItem'
 import type SearchType from '@/types/SearchType'
 
+const API_URL = import.meta.env.VITE_API_URL
 const options = [
   { name: 'Videos', code: 'videos' },
   { name: 'User', code: 'user' },
@@ -20,10 +21,10 @@ export const useSearchStore = defineStore('search', () => {
     isLoading.value = true
     showLoadMore.value = true
     try {
-      const url = 'http://localhost:1323/search'
+      const url = `${API_URL}/search`
       const options = {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
         body: JSON.stringify({
           keywords: keywords.value.trim(),
           search_type: searchType.value.code,

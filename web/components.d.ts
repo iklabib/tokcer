@@ -9,6 +9,10 @@ declare module 'vue' {
   export interface GlobalComponents {
     Button: typeof import('primevue/button')['default']
     ButtonGroup: typeof import('primevue/buttongroup')['default']
+    CardContentSkeleton: typeof import('./src/components/CardContentSkeleton.vue')['default']
+    CardContentSkelton: typeof import('./src/components/CardContentSkelton.vue')['default']
+    CardRelatedVideoSkeleton: typeof import('./src/components/CardRelatedVideoSkeleton.vue')['default']
+    copy: typeof import('./src/components/CardContentSkeleton copy.vue')['default']
     IconField: typeof import('primevue/iconfield')['default']
     InputIcon: typeof import('primevue/inputicon')['default']
     InputText: typeof import('primevue/inputtext')['default']

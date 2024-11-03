@@ -52,7 +52,7 @@ const openVideo = (url: string) => {
 <template>
   <div class="container-lg p-2">
     <SearchBox />
-    <div class="grid sm:grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-4">
+    <div class="grid mt-4 sm:grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-4">
       <Card
         v-for="item in searchStore.items"
         :key="getVideoId(item.url)"

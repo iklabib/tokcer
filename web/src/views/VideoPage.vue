@@ -4,6 +4,8 @@ import Card from 'primevue/card'
 import { useRoute } from 'vue-router'
 import SearchBox from '@/components/SearchBox.vue'
 import type { VideoInfo } from '@/types/VideoInfo'
+import CardContentSkeleton from '@/components/CardContentSkeleton.vue'
+import CardRelatedVideoSkeleton from '@/components/CardRelatedVideoSkeleton.vue'
 
 import 'vidstack/player/styles/default/theme.css'
 import 'vidstack/player/styles/default/layouts/video.css'
@@ -11,21 +13,27 @@ import 'vidstack/player'
 import 'vidstack/player/layouts/default'
 import 'vidstack/player/ui'
 
+const API_URL = import.meta.env.VITE_API_URL
+
 const route = useRoute()
 const user = route.params.user as string
 const videoId = route.params.id as string
-const url = `http://localhost:1323/stream/${user}/${videoId}`
+const url = `${API_URL}/stream/${user}/${videoId}`
 
 const videoInfo = ref<VideoInfo>()
+const isLoadingManfest = ref(false)
 
 onMounted(async () => {
   try {
-    const url = `http://localhost:1323/video/${user}/${videoId}`
+    isLoadingManfest.value = true
+    const url = `${API_URL}/video/${user}/${videoId}`
     const options = { method: 'GET' }
     const response = await fetch(url, options)
     videoInfo.value = await response.json()
   } catch (error) {
     console.error(error)
+  } finally{
+    isLoadingManfest.value = false
   }
 })
 </script>
@@ -45,7 +53,9 @@ onMounted(async () => {
           </template>
 
           <template #content>
-            <div class="flex">
+            <CardContentSkeleton v-show="isLoadingManfest"/>
+            
+            <div class="flex" v-show="!isLoadingManfest">
               <div class="flex flex-col justify-center">
                 <img
                   class="h-[40px]"
@@ -69,6 +79,8 @@ onMounted(async () => {
           </template>
         </Card>
       </div>
+
+      <CardRelatedVideoSkeleton v-for="idx in 6" v-show="isLoadingManfest"/>
 
       <Card v-for="item in videoInfo?.relatedVideos">
         <template #header>
