@@ -5,6 +5,7 @@ Requirment
 - Recent version of Go
 - Bun or Node js
 - Chrome or Chromium
+- [yt-dlp](https://github.com/yt-dlp/yt-dlp?tab=readme-ov-file#installation) in PATH
 
 ```shell
 $ git clone https://github.com/iklabib/tokcer
