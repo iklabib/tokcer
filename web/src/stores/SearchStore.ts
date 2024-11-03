@@ -4,22 +4,17 @@ import type SearchItem from '@/types/SearchItem'
 import type SearchType from '@/types/SearchType'
 
 const API_URL = import.meta.env.VITE_API_URL
-const options = [
-  { name: 'Videos', code: 'videos' },
-  { name: 'User', code: 'user' },
-  { name: 'Tag', code: 'tag' },
-]
 
 export const useSearchStore = defineStore('search', () => {
   const items = ref<SearchItem[]>([])
   const isLoading = ref(false)
   const showLoadMore = ref(false)
   const keywords = ref('')
+  const initPage = ref(true)
   const searchType = ref<SearchType>({ name: 'Videos', code: 'videos' })
 
   const search = async () => {
     isLoading.value = true
-    showLoadMore.value = true
     try {
       const url = `${API_URL}/search`
       const options = {
@@ -32,26 +27,19 @@ export const useSearchStore = defineStore('search', () => {
       }
       const response = await fetch(url, options)
       items.value = await response.json()
+      showLoadMore.value = true
     } catch (error) {
       console.error(error)
       items.value = []
       showLoadMore.value = false
     } finally {
       isLoading.value = false
+      initPage.value = false
     }
   }
 
   const setKeywords = (keyword: string) => {
     keywords.value = keyword
-  }
-
-  const setSearchType = (type: string) => {
-    for (const v of options) {
-      if (v.code === type) {
-        searchType.value = v
-        break
-      }
-    }
   }
 
   return {
@@ -62,7 +50,6 @@ export const useSearchStore = defineStore('search', () => {
     searchType,
     search,
     setKeywords,
-    setSearchType,
-    options,
+    initPage,
   }
 })

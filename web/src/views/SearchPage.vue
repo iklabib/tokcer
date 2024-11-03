@@ -3,22 +3,18 @@ import Card from 'primevue/card'
 import Button from 'primevue/button'
 import SearchBox from '../components/SearchBox.vue'
 import { useSearchStore } from '../stores/SearchStore'
-import router from '@/routes/routes'
+import router from '../routes/routes'
 import { useRoute } from 'vue-router'
 
 const searchStore = useSearchStore()
-
 const route = useRoute()
-
 const keywords = route.params.keywords as string
-const searchType = route.params.type as string
 
-if (keywords && searchType) {
+if (keywords) {
   searchStore.setKeywords(keywords)
-  searchStore.setSearchType(searchType)
 } else {
+  searchStore.initPage = true
   searchStore.setKeywords('')
-  searchStore.setSearchType('videos')
 }
 
 const getVideoId = (url: string): string => {
@@ -52,6 +48,29 @@ const openVideo = (url: string) => {
 <template>
   <div class="container-lg p-2">
     <SearchBox />
+
+    <div class="flex flex-center justify-center mt-[30vh] gap-2 opacity-40" v-if="searchStore.initPage">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        width="1.25rem"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        class="icon icon-tabler icons-tabler-outline icon-tabler-search dark:text-white light:text-black pb-1 w-12"
+      >
+        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+        <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" />
+        <path d="M21 21l-6 -6" />
+      </svg>
+
+      <h1 class="text-4xl">Start Searching</h1>
+    </div>
+
+    <div class="mt-4"></div>
+
     <div class="grid mt-4 sm:grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-4">
       <Card
         v-for="item in searchStore.items"
@@ -82,6 +101,7 @@ const openVideo = (url: string) => {
         </template>
       </Card>
     </div>
+    
     <div class="flex justify-center mt-4">
       <Button
         label="Load More"

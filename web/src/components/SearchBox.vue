@@ -18,13 +18,12 @@ const search = () => {
     searchStore.search()
   } else {
     const keywords = searchStore.keywords.trim()
-    const searchType = searchStore.searchType.code
 
     router.push({
       name: 'search',
       params: {
         keywords: keywords,
-        type: searchType,
+        type: 'videos',
       },
     })
   }
@@ -45,12 +44,6 @@ const search = () => {
 
       <template #center>
         <div class="flex flex-center justify-center gap-2">
-          <Select
-            v-model="searchStore.searchType"
-            :options="searchStore.options"
-            optionLabel="name"
-            class="w-[120px]"
-          />
           <IconField>
             <InputIcon>
               <svg
@@ -72,7 +65,7 @@ const search = () => {
             </InputIcon>
             <InputText
               placeholder="Search"
-              class="w-[200px]"
+              class="w-[250px]"
               v-model="searchStore.keywords"
               @keyup.enter="search"
             />
