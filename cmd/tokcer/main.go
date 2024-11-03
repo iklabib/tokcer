@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"log"
-	"net/http"
 	"os"
 	"strings"
 	"time"
@@ -21,18 +20,8 @@ import (
 var tk *tiktok.Tiktok = tiktok.NewTiktok()
 
 func main() {
-	frontendHost := os.Getenv("TOCKER_FRONTEND_HOST")
-	if frontendHost == "" {
-		frontendHost = ":5713"
-	}
-
 	e := echo.New()
-	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins:  []string{"*", frontendHost},
-		AllowHeaders:  []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
-		AllowMethods:  []string{http.MethodGet, http.MethodPost, http.MethodHead},
-		ExposeHeaders: []string{"Content-Range", "Accept-Ranges", "Content-Length"},
-	}))
+	e.Use(middleware.CORS())
 
 	// periodically clean cache
 	memo.StartCacheCleaner(10 * time.Minute)

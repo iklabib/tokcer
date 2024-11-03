@@ -92,7 +92,7 @@ func pickVideo(formats []Format) Format {
 
 	picked := false
 	for _, current := range formats {
-		if current.FormatNote != "watermarked" {
+		if current.FormatNote == "watermarked" {
 			continue
 		}
 
